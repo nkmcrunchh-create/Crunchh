@@ -1,0 +1,15 @@
+{
+  "id": "evt_test_payment_captured",
+  "event": "payment.captured",
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_test_123",
+        "order_id": "order_test_123",
+        "amount": 19800,
+        "currency": "INR",
+        "status": "captured"
+      }
+    }
+  }
+}

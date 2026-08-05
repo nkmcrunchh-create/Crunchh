@@ -1,0 +1,9 @@
+process.env.NODE_ENV = "test";
+process.env.PUBLIC_BASE_URL = "http://localhost:3000";
+process.env.FRONTEND_URL = "http://localhost:3000";
+process.env.CORS_ALLOWED_ORIGINS = "http://localhost:3000";
+process.env.SHIPPING_PROVIDER = "mock";
+process.env.NIMBUSPOST_MOCK_MODE = "true";
+process.env.RAZORPAY_KEY_SECRET = "test_secret";
+process.env.WHATSAPP_ENABLED = "false";
+process.env.STORAGE_PROVIDER = "local";

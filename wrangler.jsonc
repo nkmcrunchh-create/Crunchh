@@ -1,0 +1,128 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "crunchh-commerce",
+	"main": "src/cloudflare-container-worker.ts",
+	"compatibility_date": "2026-08-03",
+	"workers_dev": false,
+	"routes": [
+		{
+			"pattern": "crunchh.store/*",
+			"zone_name": "crunchh.store"
+		},
+		{
+			"pattern": "www.crunchh.store/*",
+			"zone_name": "crunchh.store"
+		}
+	],
+	"observability": {
+		"enabled": false
+	},
+	"triggers": {
+		"crons": [
+			"*/5 * * * *"
+		]
+	},
+	"containers": [
+		{
+			"max_instances": 3,
+			"class_name": "CrunchhCommerceContainer",
+			"image": "./Dockerfile"
+		}
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "CRUNCHH_CONTAINER",
+				"class_name": "CrunchhCommerceContainer"
+			}
+		]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "crunchh",
+			"database_id": "65bf83d2-b96a-4fe6-b8d1-d7c0e72818b9",
+			"migrations_dir": "d1/migrations"
+		}
+	],
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": [
+				"CrunchhCommerceContainer"
+			]
+		}
+	],
+	"vars": {
+		"NODE_ENV": "production",
+		"PORT": "3000",
+		"CONTAINER_INSTANCES": "2",
+		"DATABASE_PROVIDER": "d1",
+		"CLOUDFLARE_ACCOUNT_ID": "9c661ab87cf9ac38b7308b67293ffac9",
+		"CLOUDFLARE_D1_DATABASE_ID": "65bf83d2-b96a-4fe6-b8d1-d7c0e72818b9",
+		"SHIPPING_PROVIDER": "nimbuspost",
+		"NIMBUSPOST_MOCK_MODE": "false",
+		"WHATSAPP_ENABLED": "true",
+		"STORAGE_PROVIDER": "r2",
+		"R2_INVOICE_BUCKET": "crunchh-invoices",
+		"RAZORPAY_AUTO_CAPTURE": "true",
+		"COD_ENABLED": "true",
+		"NCR_PREPAID_SHIPPING_PAISE": "4900",
+		"NCR_COD_SHIPPING_PAISE": "6900",
+		"FREE_SHIPPING_THRESHOLD_PAISE": "49900",
+		"TAX_INCLUSIVE_PRICES": "true",
+		"DEFAULT_PRODUCT_TAX_RATE_BPS": "1200",
+		"SHIPPING_TAX_RATE_BPS": "1800",
+		"OUTBOX_POLL_INTERVAL_MS": "15000",
+		"MAX_JOB_ATTEMPTS": "8",
+		"LOG_LEVEL": "info"
+	},
+	"secrets": {
+		"required": [
+			"PUBLIC_BASE_URL",
+			"FRONTEND_URL",
+			"CORS_ALLOWED_ORIGINS",
+			"CLOUDFLARE_D1_API_TOKEN",
+			"SESSION_SECRET",
+			"INTERNAL_JOB_SECRET",
+			"ADMIN_EMAIL",
+			"ADMIN_PASSWORD_HASH",
+			"RAZORPAY_KEY_ID",
+			"RAZORPAY_KEY_SECRET",
+			"RAZORPAY_WEBHOOK_SECRET",
+			"NIMBUSPOST_BASE_URL",
+			"NIMBUSPOST_SERVICEABILITY_PATH",
+			"NIMBUSPOST_RATES_PATH",
+			"NIMBUSPOST_CREATE_SHIPMENT_PATH",
+			"NIMBUSPOST_TRACKING_PATH",
+			"NIMBUSPOST_CANCEL_PATH",
+			"NIMBUSPOST_LABEL_PATH",
+			"NIMBUSPOST_API_KEY",
+			"NIMBUSPOST_API_SECRET",
+			"NIMBUSPOST_WEBHOOK_SECRET",
+			"NIMBUSPOST_PICKUP_LOCATION_ID",
+			"NIMBUSPOST_PICKUP_PINCODE",
+			"NIMBUSPOST_RETURN_LOCATION_ID",
+			"WHATSAPP_ACCESS_TOKEN",
+			"WHATSAPP_PHONE_NUMBER_ID",
+			"WHATSAPP_BUSINESS_ACCOUNT_ID",
+			"WHATSAPP_APP_SECRET",
+			"WHATSAPP_WEBHOOK_VERIFY_TOKEN",
+			"SELLER_GSTIN",
+			"SELLER_REGISTERED_ADDRESS",
+			"SELLER_DISPATCH_ADDRESS",
+			"SELLER_STATE",
+			"SELLER_STATE_CODE",
+			"SELLER_EMAIL",
+			"R2_ACCOUNT_ID",
+			"R2_ACCESS_KEY_ID",
+			"R2_SECRET_ACCESS_KEY"
+		]
+	},
+	"r2_buckets": [
+		{
+			"bucket_name": "crunchh-invoices",
+			"binding": "crunchh_invoices"
+		}
+	]
+}

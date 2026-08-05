@@ -1,0 +1,323 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum PaymentMethod {
+  PREPAID
+  COD
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  COD_PENDING
+  COD_COLLECTED
+}
+
+enum FulfilmentStatus {
+  PENDING_PAYMENT
+  PAYMENT_CONFIRMED
+  READY_TO_BOOK
+  SHIPMENT_BOOKING
+  SHIPMENT_BOOKED
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  NDR
+  RTO_INITIATED
+  RTO_DELIVERED
+  CANCELLED
+  BOOKING_FAILED
+}
+
+enum WebhookProcessingStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+  IGNORED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+model Product {
+  id                String      @id @default(uuid())
+  slug              String      @unique
+  sku               String      @unique
+  name              String
+  category          String
+  flavour           String
+  weightGrams       Int
+  pricePaise        Int
+  active            Boolean     @default(true)
+  inventoryQuantity Int         @default(0)
+  imageUrl          String?
+  hsn               String?
+  taxRateBps        Int         @default(1200)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  orderItems        OrderItem[]
+}
+
+model Customer {
+  id            String    @id @default(uuid())
+  name          String
+  email         String
+  mobile        String
+  whatsappOptIn Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  addresses     Address[]
+  orders        Order[]
+
+  @@index([mobile])
+  @@index([email])
+}
+
+model Address {
+  id          String   @id @default(uuid())
+  customerId  String
+  line1       String
+  line2       String?
+  landmark    String?
+  city        String
+  district    String?
+  state       String
+  postalCode  String
+  country     String   @default("IN")
+  addressType String   @default("SHIPPING")
+  customer    Customer @relation(fields: [customerId], references: [id])
+  orders      Order[]
+}
+
+model Order {
+  id                String            @id @default(uuid())
+  publicOrderId     String            @unique
+  customerId        String
+  addressId         String
+  paymentMethod     PaymentMethod
+  paymentStatus     PaymentStatus
+  fulfilmentStatus  FulfilmentStatus
+  subtotalPaise     Int
+  discountPaise     Int               @default(0)
+  shippingPaise     Int
+  taxableAmountPaise Int
+  taxPaise          Int
+  totalPaise        Int
+  currency          String            @default("INR")
+  couponCode        String?
+  customerNote      String?
+  source            String            @default("web")
+  selectedCourierJson Json?
+  invoiceReady      Boolean           @default(false)
+  whatsappReady     Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  confirmedAt       DateTime?
+  cancelledAt       DateTime?
+  customer          Customer          @relation(fields: [customerId], references: [id])
+  address           Address           @relation(fields: [addressId], references: [id])
+  items             OrderItem[]
+  payments          Payment[]
+  shipment          Shipment?
+  invoice           Invoice?
+  notifications     Notification[]
+
+  @@index([createdAt])
+  @@index([paymentStatus, fulfilmentStatus])
+}
+
+model OrderItem {
+  id                  String  @id @default(uuid())
+  orderId             String
+  productId           String
+  sku                 String
+  productNameSnapshot String
+  quantity            Int
+  unitPricePaise      Int
+  taxRateSnapshot     Int
+  lineSubtotalPaise   Int
+  lineTaxPaise        Int
+  lineTotalPaise      Int
+  weightGramsSnapshot Int
+  hsnSnapshot         String?
+  order               Order   @relation(fields: [orderId], references: [id])
+  product             Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id                 String        @id @default(uuid())
+  orderId            String
+  provider           String
+  providerOrderId    String?
+  providerPaymentId  String?
+  providerSignature  String?
+  amountPaise        Int
+  status             PaymentStatus
+  rawResponseJson    Json?
+  capturedAt         DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  order              Order         @relation(fields: [orderId], references: [id])
+
+  @@unique([provider, providerOrderId])
+  @@unique([provider, providerPaymentId])
+  @@index([orderId])
+}
+
+model Shipment {
+  id                  String           @id @default(uuid())
+  orderId             String           @unique
+  provider            String
+  externalShipmentId  String?
+  courierId           String?
+  courierName         String?
+  awb                 String?          @unique
+  trackingUrl         String?
+  labelUrl            String?
+  manifestUrl         String?
+  paymentMode         String
+  codAmountPaise      Int              @default(0)
+  chargedWeightGrams  Int?
+  actualWeightGrams   Int?
+  lengthCm            Int?
+  widthCm             Int?
+  heightCm            Int?
+  shippingCostPaise   Int?
+  status              FulfilmentStatus @default(SHIPMENT_BOOKING)
+  lastStatusAt        DateTime?
+  rawResponseJson     Json?
+  bookedAt            DateTime?
+  deliveredAt         DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  order               Order            @relation(fields: [orderId], references: [id])
+  events              ShipmentEvent[]
+}
+
+model ShipmentEvent {
+  id               String           @id @default(uuid())
+  shipmentId       String
+  providerStatus   String
+  normalizedStatus FulfilmentStatus
+  description      String?
+  location         String?
+  eventTime        DateTime
+  rawPayloadJson   Json?
+  createdAt        DateTime         @default(now())
+  shipment         Shipment         @relation(fields: [shipmentId], references: [id])
+
+  @@index([shipmentId, eventTime])
+}
+
+model InvoiceSequence {
+  financialYear String @id
+  lastNumber    Int    @default(0)
+}
+
+model Invoice {
+  id              String   @id @default(uuid())
+  orderId         String   @unique
+  invoiceNumber   String   @unique
+  financialYear   String
+  pdfStoragePath  String
+  pdfUrl          String?
+  subtotalPaise   Int
+  taxPaise        Int
+  totalPaise      Int
+  generatedAt     DateTime @default(now())
+  order           Order    @relation(fields: [orderId], references: [id])
+}
+
+model WebhookEvent {
+  id               String                  @id @default(uuid())
+  provider         String
+  externalEventId  String
+  eventType        String
+  payloadHash      String
+  payloadJson      Json
+  processingStatus WebhookProcessingStatus @default(RECEIVED)
+  attempts         Int                     @default(0)
+  errorMessage     String?
+  receivedAt       DateTime                @default(now())
+  processedAt      DateTime?
+
+  @@unique([provider, externalEventId])
+  @@unique([provider, payloadHash])
+  @@index([processingStatus, receivedAt])
+}
+
+model Notification {
+  id                String             @id @default(uuid())
+  orderId           String
+  dedupeKey         String             @unique
+  channel           String
+  notificationType  String
+  recipient         String
+  providerMessageId String?
+  status            NotificationStatus @default(QUEUED)
+  attempts          Int                @default(0)
+  errorMessage      String?
+  payloadJson       Json?
+  sentAt            DateTime?
+  createdAt         DateTime           @default(now())
+  order             Order              @relation(fields: [orderId], references: [id])
+}
+
+model OutboxJob {
+  id            String       @id @default(uuid())
+  jobType       String
+  entityId      String
+  payloadJson   Json?
+  status        OutboxStatus @default(PENDING)
+  attempts      Int          @default(0)
+  nextAttemptAt DateTime     @default(now())
+  lockedAt      DateTime?
+  completedAt   DateTime?
+  lastError     String?
+  createdAt     DateTime     @default(now())
+
+  @@unique([jobType, entityId, status])
+  @@index([status, nextAttemptAt])
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AdminSession {
+  id        String   @id
+  data      Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
+}

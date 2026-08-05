@@ -1,0 +1,8 @@
+{
+  "event_id": "np_evt_test_1",
+  "awb": "CRHMOCKABC123",
+  "status": "out for delivery",
+  "description": "Courier is out for delivery",
+  "location": "Noida",
+  "event_time": "2026-08-03T10:30:00.000Z"
+}
