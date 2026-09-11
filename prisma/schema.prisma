@@ -75,11 +75,28 @@ model Product {
   active            Boolean     @default(true)
   inventoryQuantity Int         @default(0)
   imageUrl          String?
+  imageUrls         String?
+  tagline           String?
+  description       String?
   hsn               String?
   taxRateBps        Int         @default(1200)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
   orderItems        OrderItem[]
+}
+
+model Review {
+  id            String   @id @default(uuid())
+  customerName  String
+  rating        Int      @default(5)
+  quote         String?
+  screenshotUrl String?
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([active, sortOrder])
 }
 
 model Customer {

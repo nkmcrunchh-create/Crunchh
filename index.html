@@ -4,19 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CRUNCHH | Elevated Indian Snacking</title>
-  <meta name="description" content="CRUNCHH is a refined Indian snack atelier. Pick your crunch, checkout in seconds, and receive invoice and tracking updates on WhatsApp.">
+  <meta name="description" content="CRUNCHH is a refined Indian snack atelier. Explore the range, order through trusted marketplaces, and connect on WhatsApp for bulk and gifting.">
   <meta property="og:title" content="CRUNCHH | Elevated Indian Snacking">
-  <meta property="og:description" content="Premium Indian snacks with a smooth Razorpay or COD checkout.">
-  <meta property="og:image" content="assets/img/crunchh-logo-seal.png">
+  <meta property="og:description" content="Premium Indian snacks available through ONDC, Amazon, Flipkart, AJIO, and direct WhatsApp for bulk and gifting.">
+  <meta property="og:image" content="assets/img/optimized/crunchh-logo-seal.png">
   <meta property="og:type" content="website">
-  <link rel="icon" type="image/png" href="assets/img/crunchh-favicon.png">
-  <link rel="apple-touch-icon" href="assets/img/crunchh-favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="assets/css/luxury.css">
-  <link rel="stylesheet" href="assets/css/experience.css">
+  <link rel="icon" type="image/png" href="assets/img/optimized/crunchh-favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/optimized/crunchh-favicon.png">
+  <link rel="preload" as="image" href="assets/img/hero-chilli-cutout.png" fetchpriority="high">
+  <link rel="stylesheet" href="assets/css/style.css?v=marketplace-20260911">
+  <script src="assets/js/main.js?v=marketplace-20260911" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -31,16 +28,14 @@
 
       <nav class="nav-links" id="navLinks" aria-label="Primary navigation">
         <a href="#shop">Shop</a>
+        <a href="#gifting">Gifting</a>
+        <a href="#bulk">Bulk</a>
         <a href="#about">Craft</a>
-        <a href="#order" data-open-checkout>Cart</a>
         <a href="#contact">Contact</a>
       </nav>
 
       <div class="header-actions">
-        <a class="cart-pill" href="#order" data-open-checkout aria-label="Open cart">
-          <span>Cart</span>
-          <strong id="cartCount">0</strong>
-        </a>
+        <a class="btn header-buy" href="#shop">Order now</a>
         <button class="menu-btn" id="menuBtn" type="button" aria-label="Open menu" aria-expanded="false">
           <span></span><span></span>
         </button>
@@ -55,51 +50,28 @@
           <p class="kicker">Women-led healthy snacking</p>
           <h1>CRUNCHH</h1>
           <p class="hero-text">
-            Premium Indian crunch made lighter, cleaner, and effortless to order.
-            Pick a pack, watch the cart float, checkout in one calm flow.
+            Premium Indian crunch made lighter, cleaner, and easier to buy.
+            Choose your pack here, then order through the marketplace where your payments, tracking, and order history already live.
           </p>
           <div class="hero-actions">
-            <a class="btn primary" href="#shop">Shop the drop</a>
-            <a class="btn secondary" href="#order" data-open-checkout>Open cart</a>
+            <a class="btn primary" href="#shop">Shop marketplaces</a>
+            <a class="btn secondary" href="#gifting">Explore gifting</a>
           </div>
           <div class="hero-proof" aria-label="Ordering highlights">
             <span>Women-led</span>
             <span>Healthy crunch</span>
-            <span>Invoice + tracking</span>
+            <span>Marketplace tracking</span>
           </div>
         </div>
 
         <div class="hero-product" aria-label="Crunchh product">
           <div class="product-frame">
-            <div class="frame-label">Signature pack</div>
-            <img src="assets/img/chilli-mix-pouch.png" alt="Crunchh snack packet">
-            <div class="frame-price">Fresh <strong>80g packs</strong></div>
+            <img src="assets/img/hero-chilli-cutout.png" width="1024" height="1536" alt="Crunchh snack packet" fetchpriority="high" onerror="this.onerror=null;this.src='assets/img/optimized/stick-crunchh.jpg';">
           </div>
           <div class="hero-note">
             <span>Signature 80g packs</span>
-            Lighter everyday snacks with a polished gifting feel.
+            Everyday snacks with a polished gifting feel.
           </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="journey-strip" aria-label="Order journey">
-      <div class="container journey-list">
-        <div>
-          <span>01</span>
-          <strong>Pick snacks</strong>
-        </div>
-        <div>
-          <span>02</span>
-          <strong>Cart floats</strong>
-        </div>
-        <div>
-          <span>03</span>
-          <strong>Add address</strong>
-        </div>
-        <div>
-          <span>04</span>
-          <strong>Pay & track</strong>
         </div>
       </div>
     </section>
@@ -111,9 +83,83 @@
             <p class="kicker">The drop</p>
             <h2>Choose your crunch.</h2>
           </div>
-          <p>A focused shelf of six 80g packs for gifting, desk drawers, and clean cravings.</p>
+          <p>Order through ONDC, Amazon, Flipkart, or AJIO so payment, delivery tracking, returns, and order history stay inside the platform you prefer.</p>
         </div>
+        <div class="marketplace-strip" data-marketplace-links></div>
         <div class="product-grid" id="productGrid"></div>
+      </div>
+    </section>
+
+    <section class="gifting-section" id="gifting">
+      <div class="container gifting-grid">
+        <div class="gifting-photo">
+          <img src="assets/img/gifting-combos.png" width="1792" height="1024" alt="Crunchh gifting combo hamper with assorted snacks" loading="lazy" decoding="async">
+        </div>
+        <div class="gifting-copy">
+          <p class="kicker">Gifting</p>
+          <h2>Combos made for festive tables, teams, and client desks.</h2>
+          <p>Pick a gifting format and WhatsApp us the address, recipient details, delivery date, and gift note. We will confirm availability and pricing directly.</p>
+          <div class="gift-grid" id="giftComboGrid"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bulk-section" id="bulk">
+      <div class="container bulk-grid">
+        <div class="bulk-copy">
+          <p class="kicker">Bulk orders</p>
+          <h2>Planning an office, event, retail, or gifting order?</h2>
+          <p>Share the quantity and delivery city. The form opens WhatsApp with the details filled in, so the team can respond quickly on the same number.</p>
+          <div class="contact-cards">
+            <div>
+              <span>WhatsApp</span>
+              <strong>+91 73030 33324</strong>
+            </div>
+            <div>
+              <span>Best for</span>
+              <strong>Bulk, retail, events, and gifting</strong>
+            </div>
+          </div>
+        </div>
+
+        <form class="contact-form" id="bulkOrderForm">
+          <div class="field-grid">
+            <label>Your name
+              <input id="bulkName" type="text" placeholder="Your name" required>
+            </label>
+            <label>Phone number
+              <input id="bulkPhone" type="tel" placeholder="Mobile number" pattern="[0-9+ ]{7,15}" required>
+            </label>
+          </div>
+          <label>Email address
+            <input id="bulkEmail" type="email" placeholder="name@example.com" required>
+          </label>
+          <div class="field-grid">
+            <label>Quantity / packs
+              <input id="bulkQuantity" type="number" min="24" step="1" placeholder="Example: 100" required>
+            </label>
+            <label>City / delivery location
+              <input id="bulkCity" type="text" placeholder="City and state" required>
+            </label>
+          </div>
+          <label>Required by <span>(optional)</span>
+            <input id="bulkDate" type="date">
+          </label>
+          <fieldset class="checkbox-grid">
+            <legend>Products</legend>
+            <label><input type="checkbox" name="bulkProducts" value="Stick Crunchh"> Stick</label>
+            <label><input type="checkbox" name="bulkProducts" value="Lotus Crunchh"> Lotus</label>
+            <label><input type="checkbox" name="bulkProducts" value="Ruby Crunchh"> Ruby</label>
+            <label><input type="checkbox" name="bulkProducts" value="Leafy Crunchh"> Leafy</label>
+            <label><input type="checkbox" name="bulkProducts" value="Fusion Crunchh"> Fusion</label>
+            <label><input type="checkbox" name="bulkProducts" value="Puff Crunchh"> Puff</label>
+          </fieldset>
+          <label>Message <span>(optional)</span>
+            <textarea id="bulkMessage" rows="3" placeholder="Tell us about packaging, delivery, or flavour preferences"></textarea>
+          </label>
+          <button class="btn primary full" type="submit">Send bulk enquiry on WhatsApp</button>
+          <p class="fine-print">This opens WhatsApp with your enquiry pre-filled. No message is sent until you confirm it there.</p>
+        </form>
       </div>
     </section>
 
@@ -124,124 +170,9 @@
           <h2>Women-led, health-forward, proudly Indian.</h2>
         </div>
         <div class="story">
-          <p>
-            CRUNCHH is shaped by a women-led team building better snack rituals:
-            lighter ingredients, balanced Indian flavours, and packs that feel
-            polished enough for work desks, gifting, and everyday cravings.
-          </p>
-          <p>
-            Taste stays warm and familiar. The experience stays modern:
-            simple selection, floating cart, secure payment, invoice, and
-            WhatsApp tracking.
-          </p>
-          <p>
-            Minimal fuss. Premium crunch. Checkout that keeps moving.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="order-section checkout-collapsed" id="order" aria-hidden="true">
-      <div class="container order-grid">
-        <div class="checkout-panel">
-          <p class="kicker">Cart</p>
-          <h2>Your selection</h2>
-          <div class="cart-list" id="cartList"></div>
-          <div class="cart-total">
-            <span>Total</span>
-            <strong id="cartTotal">Rs. 0</strong>
-          </div>
-          <button class="text-btn" id="clearCart" type="button">Clear cart</button>
-        </div>
-
-        <form class="checkout-form" id="orderForm">
-          <div class="checkout-head">
-            <p class="kicker">Checkout</p>
-            <h2>Where should it arrive?</h2>
-            <p>Address first. Then Razorpay or COD. Invoice and tracking follow automatically.</p>
-          </div>
-          <div class="form-section">
-            <div class="field-grid">
-              <label>Full name
-                <input id="customerName" name="name" type="text" placeholder="Your name" required>
-              </label>
-              <label>Phone number
-                <input id="customerPhone" name="phone" type="tel" placeholder="10-digit mobile number" pattern="[0-9+ ]{7,15}" required>
-              </label>
-            </div>
-            <label>Email address
-              <input id="customerEmail" name="email" type="email" placeholder="name@example.com" required>
-            </label>
-            <label>Address line 1
-              <input id="addressLine1" name="line1" type="text" placeholder="House/flat and street" required>
-            </label>
-            <label>Address line 2 <span>(optional)</span>
-              <input id="addressLine2" name="line2" type="text" placeholder="Area, building, floor">
-            </label>
-            <div class="field-grid">
-              <label>City
-                <input id="customerCity" name="city" type="text" placeholder="City" required>
-              </label>
-              <label>State
-                <input id="customerState" name="state" type="text" placeholder="State" required>
-              </label>
-            </div>
-            <div class="field-grid">
-              <label>PIN code
-                <input id="customerPincode" name="postalCode" type="text" inputmode="numeric" pattern="[0-9]{6}" placeholder="Six digit PIN" required>
-              </label>
-              <label>Landmark <span>(optional)</span>
-                <input id="customerLandmark" name="landmark" type="text" placeholder="Nearby landmark">
-              </label>
-            </div>
-          </div>
-
-          <div class="form-section payment-box">
-            <div>
-              <p class="mini-kicker">Final step</p>
-              <h3>Payment</h3>
-              <p>Choose prepaid for Razorpay, or COD where serviceable.</p>
-            </div>
-            <div class="payment-meta">
-              <span>Payment</span>
-              <select id="paymentMethod" required>
-                <option value="PREPAID">Prepaid with Razorpay</option>
-                <option value="COD">Cash on delivery</option>
-              </select>
-            </div>
-          </div>
-
-          <label class="consent-line">
-            <input id="whatsappConsent" type="checkbox" required>
-            I agree to receive transactional order and delivery updates on WhatsApp.
-          </label>
-
-          <label>Order notes <span>(optional)</span>
-            <textarea id="orderNotes" name="notes" rows="2" placeholder="Preferred delivery time or flavour notes"></textarea>
-          </label>
-
-          <button class="btn primary full" id="placeOrderBtn" type="submit">Place secure order</button>
-          <p class="fine-print">
-            Secure checkout. Server-verified totals. WhatsApp tracking after booking.
-          </p>
-        </form>
-      </div>
-    </section>
-
-    <section class="invoice-section" id="invoiceSection" hidden>
-      <div class="container">
-        <div class="invoice-card" id="invoiceCard">
-          <div>
-            <p class="kicker">Invoice</p>
-            <h2 id="statusTitle">Order status</h2>
-            <p id="invoiceIntro">Your secure order status will appear here after checkout.</p>
-          </div>
-          <div class="invoice-body" id="invoiceBody"></div>
-          <div class="invoice-actions">
-            <a class="btn secondary" id="trackingLink" href="#" target="_blank" rel="noopener">Track order</a>
-            <a class="btn secondary" id="invoiceDownload" href="#" target="_blank" rel="noopener" hidden>Download invoice</a>
-            <a class="btn primary" id="invoiceWhatsapp" href="#" target="_blank" rel="noopener">Support WhatsApp</a>
-          </div>
+          <p>CRUNCHH is shaped by a women-led team building better snack rituals: lighter ingredients, balanced Indian flavours, and packs that feel polished enough for work desks, gifting, and everyday cravings.</p>
+          <p>Taste stays warm and familiar. Ordering stays simple through trusted marketplaces, with payment records, delivery tracking, returns, and order history handled by those platforms.</p>
+          <p>For custom requirements, bulk quantities, and gifting, WhatsApp keeps the conversation direct.</p>
         </div>
       </div>
     </section>
@@ -251,10 +182,7 @@
         <div class="contact-copy">
           <p class="kicker">Contact</p>
           <h2>Need something special?</h2>
-          <p>
-            Bulk orders, gifting, retail, or product questions. Send a note on
-            WhatsApp and we will take it from there.
-          </p>
+          <p>Bulk orders, gifting, retail, or product questions. Send a note on WhatsApp and we will take it from there.</p>
           <div class="contact-cards">
             <div>
               <span>WhatsApp first</span>
@@ -297,13 +225,26 @@
         </form>
       </div>
     </section>
+
+    <section class="reviews-section" id="reviews">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Reviews</p>
+            <h2>Customer love.</h2>
+          </div>
+          <p>Ratings and customer screenshots managed from the admin panel.</p>
+        </div>
+        <div class="review-grid" id="reviewGrid"></div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
     <div class="container footer-grid">
       <div>
         <a class="brand footer-brand" href="#top">
-          <span class="brand-mark" aria-hidden="true">C</span>
+          <span class="brand-mark" aria-hidden="true"></span>
           <span class="brand-text">
             <span class="brand-title">CRUNCHH</span>
             <span class="brand-subtitle">By Trishul Group</span>
@@ -313,14 +254,15 @@
       </div>
       <div>
         <h3>Order</h3>
+        <a href="#shop">Marketplace links</a>
         <a id="footerWhatsapp" href="#" target="_blank" rel="noopener">WhatsApp Crunchh</a>
         <a href="mailto:hello@crunchh.store">hello@crunchh.store</a>
-        <a href="/admin">Admin login</a>
       </div>
       <div>
         <h3>Business</h3>
         <span>Noida, Uttar Pradesh</span>
         <span>FSSAI approved</span>
+        <a href="/admin">Admin login</a>
       </div>
     </div>
     <div class="container footer-bottom">
@@ -329,21 +271,5 @@
   </footer>
 
   <a class="floating-whatsapp" id="floatWhatsapp" href="#" target="_blank" rel="noopener" aria-label="Chat with Crunchh on WhatsApp">WA</a>
-
-  <div class="cart-toast" id="cartToast" role="status" aria-live="polite">
-    <span id="toastText">Added to cart</span>
-    <a href="#order" data-open-checkout>Checkout</a>
-  </div>
-
-  <a class="sticky-cart" id="stickyCart" href="#order" data-open-checkout aria-label="Go to checkout" hidden>
-    <span>
-      <strong id="stickyCartCount">0 items</strong>
-      <small id="stickyCartTotal">Rs. 0</small>
-    </span>
-    <em>Checkout</em>
-  </a>
-
-  <script src="assets/js/main.js"></script>
-  <script src="assets/js/luxury-flow.js"></script>
 </body>
 </html>

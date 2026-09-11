@@ -4,4 +4,8 @@ dist
 .env.*
 coverage
 tmp
+.wrangler
 .git
+test-results
+assets/img/*.png
+!assets/img/optimized/*.png

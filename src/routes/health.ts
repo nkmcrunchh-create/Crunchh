@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { prisma } from "../db/prisma.js";
-import { env } from "../config/env.js";
 
 export const healthRouter = Router();
 
@@ -11,8 +10,7 @@ healthRouter.get("/health", (_req, res) => {
 healthRouter.get("/ready", async (_req, res) => {
   const checks: Record<string, boolean> = {
     config: true,
-    database: false,
-    mockShippingAllowed: env.NODE_ENV !== "production" || env.SHIPPING_PROVIDER !== "mock"
+    database: false
   };
   try {
     await prisma.$queryRaw`SELECT 1`;

@@ -5,7 +5,19 @@ import { corsOrigins, env } from "../config/env.js";
 import { AppError } from "../utils/errors.js";
 
 export const helmetMiddleware = helmet({
-  contentSecurityPolicy: false
+  contentSecurityPolicy: {
+    useDefaults: true,
+    directives: {
+      "default-src": ["'self'"],
+      "base-uri": ["'self'"],
+      "form-action": ["'self'"],
+      "img-src": ["'self'", "data:", "https:"],
+      "script-src": ["'self'"],
+      "connect-src": ["'self'"],
+      "style-src": ["'self'", "'unsafe-inline'"]
+    }
+  },
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" }
 });
 
 export const corsMiddleware = cors({

@@ -73,17 +73,51 @@ export const d1Prisma = {
       const existing = await d1.first('SELECT * FROM "Product" WHERE slug = ?', [args.where.slug]);
       const data = existing ? args.update : { id: id(), ...args.create };
       if (existing) {
-        await d1.run('UPDATE "Product" SET sku=?, name=?, category=?, flavour=?, weightGrams=?, pricePaise=?, active=?, inventoryQuantity=?, imageUrl=?, updatedAt=? WHERE slug=?', [data.sku, data.name, data.category, data.flavour, data.weightGrams ?? 80, data.pricePaise, bool(data.active), data.inventoryQuantity, data.imageUrl, now(), args.where.slug]);
+        await d1.run('UPDATE "Product" SET sku=?, name=?, category=?, flavour=?, weightGrams=?, pricePaise=?, active=?, inventoryQuantity=?, imageUrl=?, imageUrls=?, tagline=?, description=?, updatedAt=? WHERE slug=?', [data.sku, data.name, data.category, data.flavour, data.weightGrams ?? 80, data.pricePaise, bool(data.active), data.inventoryQuantity, data.imageUrl, data.imageUrls, data.tagline, data.description, now(), args.where.slug]);
         return normalize(await d1.first('SELECT * FROM "Product" WHERE slug = ?', [args.where.slug]));
       }
-      await d1.run('INSERT INTO "Product" (id,slug,sku,name,category,flavour,weightGrams,pricePaise,active,inventoryQuantity,imageUrl,taxRateBps,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [data.id, data.slug, data.sku, data.name, data.category, data.flavour, data.weightGrams, data.pricePaise, bool(data.active ?? true), data.inventoryQuantity ?? 0, data.imageUrl ?? null, data.taxRateBps ?? 1200, now(), now()]);
+      await d1.run('INSERT INTO "Product" (id,slug,sku,name,category,flavour,weightGrams,pricePaise,active,inventoryQuantity,imageUrl,imageUrls,tagline,description,taxRateBps,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [data.id, data.slug, data.sku, data.name, data.category, data.flavour, data.weightGrams, data.pricePaise, bool(data.active ?? true), data.inventoryQuantity ?? 0, data.imageUrl ?? null, data.imageUrls ?? null, data.tagline ?? null, data.description ?? null, data.taxRateBps ?? 1200, now(), now()]);
       return normalize(await d1.first('SELECT * FROM "Product" WHERE slug = ?', [args.where.slug]));
+    },
+    async create(args: any) {
+      const data = { id: id(), ...args.data };
+      await d1.run('INSERT INTO "Product" (id,slug,sku,name,category,flavour,weightGrams,pricePaise,active,inventoryQuantity,imageUrl,imageUrls,tagline,description,taxRateBps,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [data.id, data.slug, data.sku, data.name, data.category, data.flavour, data.weightGrams, data.pricePaise, bool(data.active ?? true), data.inventoryQuantity ?? 0, data.imageUrl ?? null, data.imageUrls ?? null, data.tagline ?? null, data.description ?? null, data.taxRateBps ?? 1200, now(), now()]);
+      return normalize(await d1.first('SELECT * FROM "Product" WHERE slug = ?', [data.slug]));
     },
     async update(args: any) {
       const existing = await d1.first('SELECT * FROM "Product" WHERE slug = ?', [args.where.slug]);
       if (!existing) return null;
-      await d1.run('UPDATE "Product" SET inventoryQuantity=?, active=COALESCE(?, active), pricePaise=COALESCE(?, pricePaise), updatedAt=? WHERE slug=?', [args.data.inventoryQuantity, args.data.active == null ? null : bool(args.data.active), args.data.pricePaise ?? null, now(), args.where.slug]);
+      await d1.run(
+        'UPDATE "Product" SET sku=COALESCE(?,sku), name=COALESCE(?,name), category=COALESCE(?,category), flavour=COALESCE(?,flavour), weightGrams=COALESCE(?,weightGrams), inventoryQuantity=COALESCE(?,inventoryQuantity), active=COALESCE(?, active), pricePaise=COALESCE(?, pricePaise), imageUrl=COALESCE(?, imageUrl), imageUrls=COALESCE(?, imageUrls), tagline=COALESCE(?, tagline), description=COALESCE(?, description), updatedAt=? WHERE slug=?',
+        [args.data.sku, args.data.name, args.data.category, args.data.flavour, args.data.weightGrams, args.data.inventoryQuantity, args.data.active == null ? null : bool(args.data.active), args.data.pricePaise ?? null, args.data.imageUrl, args.data.imageUrls, args.data.tagline, args.data.description, now(), args.where.slug]
+      );
       return normalize(await d1.first('SELECT * FROM "Product" WHERE slug = ?', [args.where.slug]));
+    }
+  },
+  review: {
+    async findMany(args: any = {}) {
+      const whereActive = args.where?.active === true ? 'WHERE active = 1' : args.where?.active === false ? 'WHERE active = 0' : '';
+      const limit = args.take || 100;
+      return (await d1.all(`SELECT * FROM "Review" ${whereActive} ORDER BY sortOrder ASC, createdAt DESC LIMIT ?`, [limit])).map(normalize);
+    },
+    async create(args: any) {
+      const row = { id: args.data.id || id(), ...args.data, createdAt: now(), updatedAt: now() };
+      await d1.run('INSERT INTO "Review" (id,customerName,rating,quote,screenshotUrl,active,sortOrder,createdAt,updatedAt) VALUES (?,?,?,?,?,?,?,?,?)', [row.id, row.customerName, row.rating ?? 5, row.quote ?? null, row.screenshotUrl ?? null, bool(row.active ?? true), row.sortOrder ?? 0, row.createdAt, row.updatedAt]);
+      return normalize(await d1.first('SELECT * FROM "Review" WHERE id=?', [row.id]));
+    },
+    async update(args: any) {
+      await d1.run('UPDATE "Review" SET customerName=COALESCE(?,customerName), rating=COALESCE(?,rating), quote=COALESCE(?,quote), screenshotUrl=COALESCE(?,screenshotUrl), active=COALESCE(?,active), sortOrder=COALESCE(?,sortOrder), updatedAt=? WHERE id=?', [args.data.customerName, args.data.rating, args.data.quote, args.data.screenshotUrl, args.data.active == null ? null : bool(args.data.active), args.data.sortOrder, now(), args.where.id]);
+      return normalize(await d1.first('SELECT * FROM "Review" WHERE id=?', [args.where.id]));
+    },
+    async delete(args: any) {
+      const row = normalize(await d1.first('SELECT * FROM "Review" WHERE id=?', [args.where.id]));
+      await d1.run('DELETE FROM "Review" WHERE id=?', [args.where.id]);
+      return row;
+    },
+    async upsert(args: any) {
+      const existing = await d1.first('SELECT * FROM "Review" WHERE id=?', [args.where.id]);
+      if (existing) return d1Prisma.review.update({ where: { id: args.where.id }, data: args.update });
+      return d1Prisma.review.create({ data: { id: args.where.id, ...args.create } });
     }
   },
   customer: {
@@ -266,7 +300,10 @@ export const d1Prisma = {
     },
     async upsert(args: any) {
       const existing = await d1.first('SELECT * FROM "AdminUser" WHERE email=?', [args.where.email]);
-      if (existing) return normalize(existing);
+      if (existing) {
+        await d1.run('UPDATE "AdminUser" SET passwordHash=?, updatedAt=? WHERE email=?', [args.update.passwordHash || existing.passwordHash, now(), args.where.email]);
+        return normalize(await d1.first('SELECT * FROM "AdminUser" WHERE email=?', [args.where.email]));
+      }
       const row = { id: id(), ...args.create, createdAt: now(), updatedAt: now() };
       await d1.run('INSERT INTO "AdminUser" (id,email,passwordHash,createdAt,updatedAt) VALUES (?,?,?,?,?)', [row.id, row.email, row.passwordHash, row.createdAt, row.updatedAt]);
       return normalize(row);

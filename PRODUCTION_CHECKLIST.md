@@ -2,36 +2,28 @@
 
 Do not launch until every item below is complete.
 
-- [ ] Razorpay account activated
-- [ ] Live Razorpay keys configured
-- [ ] Razorpay auto-capture setting checked
-- [ ] Razorpay webhook secret configured
-- [ ] Razorpay webhook test passed
-- [ ] NimbusPost account activated
-- [ ] NimbusPost merchant API documentation mapped
-- [ ] NimbusPost API credentials configured
-- [ ] Pickup location configured
-- [ ] Parcel dimensions verified physically
-- [ ] Package weights verified physically
-- [ ] NimbusPost test shipment booked
-- [ ] NimbusPost webhook tested
-- [ ] Meta business portfolio configured
-- [ ] WhatsApp number connected
-- [ ] Utility template approved
-- [ ] WhatsApp order confirmation tested
+- [ ] Marketplace product or seller-page URLs confirmed for ONDC
+- [ ] Marketplace product or seller-page URLs confirmed for Amazon
+- [ ] Marketplace product or seller-page URLs confirmed for Flipkart
+- [ ] Marketplace product or seller-page URLs confirmed for AJIO
+- [ ] Bulk WhatsApp number verified
+- [ ] Gifting WhatsApp flow tested on mobile
+- [ ] Bulk order WhatsApp form tested on mobile
+- [ ] Product images reviewed for every active SKU
+- [ ] Gifting graphic reviewed
+- [ ] Product pricing reviewed against marketplace listings
+- [ ] Meta description and social preview checked
 - [ ] Seller legal details completed
-- [ ] GST and invoice settings accountant-approved
-- [ ] Product HSN and tax rates approved
-- [ ] Invoice bucket private
+- [ ] GST and product tax details accountant-approved where displayed or required
 - [ ] Admin password changed
 - [ ] Production CORS configured
+- [ ] Cloudflare D1 migrations applied
+- [ ] Database seed applied
 - [ ] Database backups configured
 - [ ] Cloudflare Worker custom domain attached
-- [ ] Cloudflare R2 invoice bucket created and private
 - [ ] Cloudflare secrets configured through Wrangler or dashboard
-- [ ] Cloudflare cron trigger verified for outbox job processing
-- [ ] Mock modes disabled
 - [ ] Production logs redact PII and secrets
-- [ ] End-to-end Rs. 1 test payment completed
-- [ ] Duplicate webhook test completed
-- [ ] Cancellation procedure documented
+- [ ] `/health` returns OK
+- [ ] `/ready` returns ready
+- [ ] Desktop storefront smoke test completed
+- [ ] Mobile storefront smoke test completed

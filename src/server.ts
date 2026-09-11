@@ -10,7 +10,9 @@ const server = app.listen(env.PORT, () => {
   logger.info({ port: env.PORT }, "CRUNCHH commerce server listening");
 });
 
-startOutboxWorker();
+if (env.OUTBOX_ENABLED) {
+  startOutboxWorker();
+}
 
 process.on("SIGTERM", () => {
   server.close(() => process.exit(0));

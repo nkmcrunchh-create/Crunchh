@@ -1,6 +1,8 @@
 const state = {
   dashboard: null,
   orders: [],
+  products: [],
+  reviews: [],
 };
 
 function moneyPaise(value) {
@@ -80,15 +82,55 @@ function renderOrders(orders) {
 }
 
 function renderInventory(products) {
-  document.getElementById("inventory").innerHTML = `<table class="admin-table"><thead><tr><th>Product</th><th>SKU</th><th>Price</th><th>Stock</th><th>Active</th><th></th></tr></thead><tbody>${products.map((product) => `
-    <tr data-product-row="${escapeHtml(product.slug)}">
-      <td><strong>${escapeHtml(product.name)}</strong><br><small>${escapeHtml(product.category)} | ${escapeHtml(product.flavour)}</small></td>
-      <td>${escapeHtml(product.sku)}</td>
-      <td><input class="admin-small-input" data-field="pricePaise" type="number" min="1" step="1" value="${Number(product.pricePaise)}"><br><small>${escapeHtml(product.priceFormatted || moneyPaise(product.pricePaise))}</small></td>
-      <td><input class="admin-small-input" data-field="inventoryQuantity" type="number" min="0" step="1" value="${Number(product.inventoryQuantity)}"></td>
-      <td><input data-field="active" type="checkbox" ${product.active ? "checked" : ""}></td>
-      <td><button data-save-product="${escapeHtml(product.slug)}">Save</button></td>
-    </tr>`).join("")}</tbody></table>`;
+  document.getElementById("inventory").innerHTML = products.length ? products.map((product) => `
+    <form class="admin-edit-card" data-product-row="${escapeHtml(product.slug)}">
+      <div class="admin-edit-head">
+        <div>
+          <strong>${escapeHtml(product.name)}</strong>
+          <small>${escapeHtml(product.slug)} | ${escapeHtml(product.priceFormatted || moneyPaise(product.pricePaise))}</small>
+        </div>
+        <label class="admin-inline-check"><input data-field="active" type="checkbox" ${product.active ? "checked" : ""}> Live</label>
+      </div>
+      <div class="admin-form-grid">
+        <label>Name<input data-field="name" value="${escapeHtml(product.name)}"></label>
+        <label>SKU<input data-field="sku" value="${escapeHtml(product.sku)}"></label>
+        <label>Category<input data-field="category" value="${escapeHtml(product.category)}"></label>
+        <label>Flavour<input data-field="flavour" value="${escapeHtml(product.flavour)}"></label>
+        <label>Weight grams<input data-field="weightGrams" type="number" min="1" step="1" value="${Number(product.weightGrams) || 80}"></label>
+        <label>Price paise<input data-field="pricePaise" type="number" min="1" step="1" value="${Number(product.pricePaise)}"></label>
+        <label>Stock<input data-field="inventoryQuantity" type="number" min="0" step="1" value="${Number(product.inventoryQuantity)}"></label>
+        <label>Tagline<input data-field="tagline" value="${escapeHtml(product.tagline || "")}"></label>
+      </div>
+      <label>Description<textarea data-field="description" rows="2">${escapeHtml(product.description || "")}</textarea></label>
+      <label>Image URLs<textarea data-field="imageUrls" rows="3">${escapeHtml((product.imageUrls || []).join("\n"))}</textarea></label>
+      <button data-save-product="${escapeHtml(product.slug)}" type="button">Save product</button>
+    </form>`).join("") : `<p class="empty-cart">No products yet.</p>`;
+}
+
+function renderReviews(reviews) {
+  const root = document.getElementById("reviews");
+  if (!root) return;
+  root.innerHTML = reviews.length ? reviews.map((review) => `
+    <form class="admin-edit-card" data-review-row="${escapeHtml(review.id)}">
+      <div class="admin-edit-head">
+        <div>
+          <strong>${escapeHtml(review.customerName)}</strong>
+          <small>${Math.max(1, Math.min(5, Number(review.rating) || 5))}/5 rating | order ${Number(review.sortOrder) || 0}</small>
+        </div>
+        <label class="admin-inline-check"><input data-field="active" type="checkbox" ${review.active ? "checked" : ""}> Live</label>
+      </div>
+      <div class="admin-form-grid">
+        <label>Customer<input data-field="customerName" value="${escapeHtml(review.customerName)}"></label>
+        <label>Rating<input data-field="rating" type="number" min="1" max="5" value="${Number(review.rating) || 5}"></label>
+        <label>Sort order<input data-field="sortOrder" type="number" value="${Number(review.sortOrder) || 0}"></label>
+        <label>Screenshot URL<input data-field="screenshotUrl" value="${escapeHtml(review.screenshotUrl || "")}"></label>
+      </div>
+      <label>Quote<textarea data-field="quote" rows="2">${escapeHtml(review.quote || "")}</textarea></label>
+      <div class="admin-row-actions">
+        <button data-save-review="${escapeHtml(review.id)}" type="button">Save review</button>
+        <button data-delete-review="${escapeHtml(review.id)}" type="button">Delete</button>
+      </div>
+    </form>`).join("") : `<p class="empty-cart">No reviews yet.</p>`;
 }
 
 function renderLowStock(items) {
@@ -125,9 +167,12 @@ function renderLogs(logs) {
 function renderDashboard(data) {
   state.dashboard = data;
   state.orders = data.recentOrders || [];
+  state.products = data.inventory || [];
+  state.reviews = data.reviews || [];
   renderMetrics(data.summary);
   renderOrders(data.recentOrders || []);
   renderInventory(data.inventory || []);
+  renderReviews(data.reviews || []);
   renderLowStock(data.lowStock || []);
   renderLogs(data.logs || {});
 }
@@ -193,13 +238,75 @@ document.addEventListener("click", async (event) => {
     await json(`/api/admin/products/${encodeURIComponent(save.dataset.saveProduct)}`, {
       method: "PATCH",
       body: JSON.stringify({
+        sku: row.querySelector('[data-field="sku"]').value.trim(),
+        name: row.querySelector('[data-field="name"]').value.trim(),
+        category: row.querySelector('[data-field="category"]').value.trim(),
+        flavour: row.querySelector('[data-field="flavour"]').value.trim(),
+        weightGrams: Number(row.querySelector('[data-field="weightGrams"]').value),
         inventoryQuantity: Number(row.querySelector('[data-field="inventoryQuantity"]').value),
         pricePaise: Number(row.querySelector('[data-field="pricePaise"]').value),
+        tagline: row.querySelector('[data-field="tagline"]').value.trim(),
+        description: row.querySelector('[data-field="description"]').value.trim(),
+        imageUrls: row.querySelector('[data-field="imageUrls"]').value,
         active: row.querySelector('[data-field="active"]').checked,
       }),
     });
     await loadDashboard();
+    return;
   }
+
+  const saveReview = event.target.closest("[data-save-review]");
+  if (saveReview) {
+    const row = document.querySelector(`[data-review-row="${CSS.escape(saveReview.dataset.saveReview)}"]`);
+    await json(`/api/admin/reviews/${encodeURIComponent(saveReview.dataset.saveReview)}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        customerName: row.querySelector('[data-field="customerName"]').value.trim(),
+        rating: Number(row.querySelector('[data-field="rating"]').value),
+        sortOrder: Number(row.querySelector('[data-field="sortOrder"]').value),
+        screenshotUrl: row.querySelector('[data-field="screenshotUrl"]').value.trim(),
+        quote: row.querySelector('[data-field="quote"]').value.trim(),
+        active: row.querySelector('[data-field="active"]').checked,
+      }),
+    });
+    await loadDashboard();
+    return;
+  }
+
+  const deleteReview = event.target.closest("[data-delete-review]");
+  if (deleteReview) {
+    await json(`/api/admin/reviews/${encodeURIComponent(deleteReview.dataset.deleteReview)}`, { method: "DELETE" });
+    await loadDashboard();
+  }
+});
+
+function formPayload(form) {
+  const data = Object.fromEntries(new FormData(form).entries());
+  form.querySelectorAll('input[type="checkbox"]').forEach((input) => {
+    data[input.name] = input.checked;
+  });
+  return data;
+}
+
+document.getElementById("newProductForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const payload = formPayload(event.currentTarget);
+  payload.weightGrams = Number(payload.weightGrams);
+  payload.pricePaise = Number(payload.pricePaise);
+  payload.inventoryQuantity = Number(payload.inventoryQuantity);
+  await json("/api/admin/products", { method: "POST", body: JSON.stringify(payload) });
+  event.currentTarget.reset();
+  await loadDashboard();
+});
+
+document.getElementById("newReviewForm")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const payload = formPayload(event.currentTarget);
+  payload.rating = Number(payload.rating);
+  payload.sortOrder = Number(payload.sortOrder);
+  await json("/api/admin/reviews", { method: "POST", body: JSON.stringify(payload) });
+  event.currentTarget.reset();
+  await loadDashboard();
 });
 
 json("/api/admin/me")

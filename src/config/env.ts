@@ -84,7 +84,7 @@ const schema = z.object({
   SELLER_PHONE: z.string().default("917303033324"),
   SELLER_WEBSITE: z.string().url().default("https://crunchh.store"),
   INVOICE_PREFIX: z.string().default("CRH"),
-  INVOICE_LOGO_PATH: z.string().default("assets/img/crunchh-logo-wordmark.png"),
+  INVOICE_LOGO_PATH: z.string().default("assets/img/optimized/crunchh-logo-seal.png"),
   NCR_PREPAID_SHIPPING_PAISE: z.coerce.number().default(4900),
   NCR_COD_SHIPPING_PAISE: z.coerce.number().default(6900),
   FREE_SHIPPING_THRESHOLD_PAISE: z.coerce.number().default(49900),
@@ -96,6 +96,7 @@ const schema = z.object({
   TAX_INCLUSIVE_PRICES: booleanEnv.default(true),
   DEFAULT_PRODUCT_TAX_RATE_BPS: z.coerce.number().default(1200),
   SHIPPING_TAX_RATE_BPS: z.coerce.number().default(1800),
+  OUTBOX_ENABLED: booleanEnv.default(false),
   OUTBOX_POLL_INTERVAL_MS: z.coerce.number().default(15000),
   MAX_JOB_ATTEMPTS: z.coerce.number().default(8),
   LOG_LEVEL: z.string().default("info")
@@ -110,9 +111,6 @@ export function assertProductionReadiness() {
   const missing = [
     ["SESSION_SECRET", env.SESSION_SECRET],
     ["INTERNAL_JOB_SECRET", env.INTERNAL_JOB_SECRET],
-    ["RAZORPAY_KEY_ID", env.RAZORPAY_KEY_ID],
-    ["RAZORPAY_KEY_SECRET", env.RAZORPAY_KEY_SECRET],
-    ["RAZORPAY_WEBHOOK_SECRET", env.RAZORPAY_WEBHOOK_SECRET],
     ["SELLER_GSTIN", env.SELLER_GSTIN],
     ["SELLER_REGISTERED_ADDRESS", env.SELLER_REGISTERED_ADDRESS],
     ["SELLER_DISPATCH_ADDRESS", env.SELLER_DISPATCH_ADDRESS],
@@ -121,9 +119,6 @@ export function assertProductionReadiness() {
   ].filter(([, value]) => !value);
   if (missing.length) {
     throw new Error(`Production readiness failed. Missing: ${missing.map(([key]) => key).join(", ")}`);
-  }
-  if (env.SHIPPING_PROVIDER === "mock" || env.NIMBUSPOST_MOCK_MODE) {
-    throw new Error("Production readiness failed. Mock shipping is enabled.");
   }
   if (env.DATABASE_PROVIDER === "postgres" && !env.DATABASE_URL) {
     throw new Error("Production readiness failed. DATABASE_URL is required for Postgres.");
@@ -136,24 +131,6 @@ export function assertProductionReadiness() {
     ].filter(([, value]) => !value);
     if (missingD1.length) throw new Error(`Production readiness failed. Missing D1 settings: ${missingD1.map(([key]) => key).join(", ")}`);
   }
-  if (env.SHIPPING_PROVIDER === "nimbuspost") {
-    const missingNimbus = [
-      ["NIMBUSPOST_BASE_URL", env.NIMBUSPOST_BASE_URL],
-      ["NIMBUSPOST_SERVICEABILITY_PATH", env.NIMBUSPOST_SERVICEABILITY_PATH],
-      ["NIMBUSPOST_RATES_PATH", env.NIMBUSPOST_RATES_PATH],
-      ["NIMBUSPOST_CREATE_SHIPMENT_PATH", env.NIMBUSPOST_CREATE_SHIPMENT_PATH],
-      ["NIMBUSPOST_TRACKING_PATH", env.NIMBUSPOST_TRACKING_PATH],
-      ["NIMBUSPOST_CANCEL_PATH", env.NIMBUSPOST_CANCEL_PATH],
-      ["NIMBUSPOST_LABEL_PATH", env.NIMBUSPOST_LABEL_PATH],
-      ["NIMBUSPOST_PICKUP_LOCATION_ID", env.NIMBUSPOST_PICKUP_LOCATION_ID],
-      ["NIMBUSPOST_PICKUP_PINCODE", env.NIMBUSPOST_PICKUP_PINCODE],
-      ["NIMBUSPOST_RETURN_LOCATION_ID", env.NIMBUSPOST_RETURN_LOCATION_ID]
-    ].filter(([, value]) => !value);
-    if (missingNimbus.length) throw new Error(`Production readiness failed. Missing NimbusPost mapping: ${missingNimbus.map(([key]) => key).join(", ")}`);
-    if ((!env.NIMBUSPOST_API_KEY || !env.NIMBUSPOST_API_SECRET) && (!env.NIMBUSPOST_API_EMAIL || !env.NIMBUSPOST_API_PASSWORD)) {
-      throw new Error("Production readiness failed. Configure NimbusPost API key/secret or email/password authentication.");
-    }
-  }
   if (env.WHATSAPP_ENABLED) {
     const missingWhatsApp = [
       ["WHATSAPP_ACCESS_TOKEN", env.WHATSAPP_ACCESS_TOKEN],
@@ -163,9 +140,6 @@ export function assertProductionReadiness() {
       ["WHATSAPP_WEBHOOK_VERIFY_TOKEN", env.WHATSAPP_WEBHOOK_VERIFY_TOKEN]
     ].filter(([, value]) => !value);
     if (missingWhatsApp.length) throw new Error(`Production readiness failed. Missing WhatsApp settings: ${missingWhatsApp.map(([key]) => key).join(", ")}`);
-  }
-  if (env.STORAGE_PROVIDER === "local") {
-    throw new Error("Production readiness failed. Local invoice storage is enabled.");
   }
   if (env.STORAGE_PROVIDER === "r2") {
     const missingR2 = [
