@@ -11,6 +11,8 @@ const CONFIG = {
   },
 };
 
+document.documentElement.classList.add("js-enabled");
+
 const DEFAULT_CATALOG = [
   { id: "stick-crunchh", name: "Stick Crunchh", category: "Soya Sticks", flavour: "Chatpata Magic", tagline: "Signature heat", desc: "Sharp masala, crisp soya, finished for a clean savoury snap.", images: ["assets/img/optimized/stick-crunchh.jpg", "assets/img/optimized/stick-crunchh2.jpg"], active: true, variants: [{ id: "packet-80g", grams: 80, price: 149 }] },
   { id: "lotus-crunchh", name: "Lotus Crunchh", category: "Makhana Chips", flavour: "Cream & Onion", tagline: "Soft cream. Quiet crunch.", desc: "Airy makhana with a polished cream and onion finish.", images: ["assets/img/optimized/lotus-crunchh.jpg", "assets/img/optimized/lotus-crunchh2.jpg"], active: true, variants: [{ id: "packet-80g", grams: 80, price: 175 }] },
@@ -77,7 +79,12 @@ function packetLabel(variant) {
 
 function productImages(product) {
   const images = Array.isArray(product.images) && product.images.length ? product.images : [product.image].filter(Boolean);
-  return images.map((image) => String(image || "").trim()).filter(Boolean);
+  const localFallbacks = product.id
+    ? [`assets/img/optimized/${product.id}.jpg`, `assets/img/optimized/${product.id}2.jpg`, `assets/img/${product.id}.png`, `assets/img/${product.id}2.png`]
+    : [];
+  return [...new Set([...images, ...localFallbacks]
+    .map((image) => String(image || "").trim().replace(/^\/+/, ""))
+    .filter(Boolean))];
 }
 
 function productImageHtml(product) {
@@ -111,20 +118,51 @@ function marketplaceButtons(productName, className = "marketplace-list") {
 }
 
 function setSliderIndex(slider, index) {
-  const slides = Array.from(slider.querySelectorAll("[data-slide-index]"));
+  const slides = Array.from(slider.querySelectorAll("[data-slide-index]")).filter((slide) => !slide.hidden);
   const dots = Array.from(slider.querySelectorAll("[data-slider-dot]"));
   if (!slides.length) return;
-  const nextIndex = (index + slides.length) % slides.length;
-  slider.dataset.current = String(nextIndex);
-  slides.forEach((slide, i) => slide.classList.toggle("active", i === nextIndex));
-  dots.forEach((dot, i) => dot.classList.toggle("active", i === nextIndex));
+  const activeSlide = slides.find((slide) => Number(slide.dataset.slideIndex) === Number(index)) || slides[((index % slides.length) + slides.length) % slides.length];
+  slider.dataset.current = String(Number(activeSlide.dataset.slideIndex) || 0);
+  slider.querySelectorAll("[data-slide-index]").forEach((slide) => slide.classList.toggle("active", slide === activeSlide));
+  dots.forEach((dot) => dot.classList.toggle("active", Number(dot.dataset.sliderDot) === Number(activeSlide.dataset.slideIndex)));
+}
+
+function stepSlider(slider, direction) {
+  const slides = Array.from(slider.querySelectorAll("[data-slide-index]")).filter((slide) => !slide.hidden);
+  if (!slides.length) return;
+  const current = slides.findIndex((slide) => Number(slide.dataset.slideIndex) === Number(slider.dataset.current));
+  const next = slides[((current + direction) % slides.length + slides.length) % slides.length];
+  setSliderIndex(slider, Number(next.dataset.slideIndex) || 0);
+}
+
+function handleProductImageError(image) {
+  const slider = image.closest("[data-slider]");
+  if (!slider) {
+    image.hidden = true;
+    return;
+  }
+  image.hidden = true;
+  const dot = slider.querySelector(`[data-slider-dot="${image.dataset.slideIndex}"]`);
+  if (dot) dot.hidden = true;
+  const visibleSlides = Array.from(slider.querySelectorAll("[data-slide-index]")).filter((slide) => !slide.hidden);
+  if (!visibleSlides.length) {
+    slider.innerHTML = `<div class="product-fallback"><span>C</span></div>`;
+    return;
+  }
+  if (image.classList.contains("active")) {
+    setSliderIndex(slider, Number(visibleSlides[0].dataset.slideIndex) || 0);
+  }
 }
 
 function initProductSliders(scope = document) {
   scope.querySelectorAll("[data-slider]").forEach((slider) => {
     slider.dataset.current = slider.dataset.current || "0";
+    slider.querySelectorAll("[data-slide-index]").forEach((image) => {
+      if (image.complete && image.naturalWidth === 0) handleProductImageError(image);
+      image.addEventListener("error", () => handleProductImageError(image));
+    });
     slider.querySelectorAll("[data-slider-dir]").forEach((button) => {
-      button.addEventListener("click", () => setSliderIndex(slider, (Number(slider.dataset.current) || 0) + Number(button.dataset.sliderDir)));
+      button.addEventListener("click", () => stepSlider(slider, Number(button.dataset.sliderDir)));
     });
     slider.querySelectorAll("[data-slider-dot]").forEach((button) => {
       button.addEventListener("click", () => setSliderIndex(slider, Number(button.dataset.sliderDot)));
@@ -149,7 +187,7 @@ function renderProducts() {
   grid.innerHTML = activeProducts.map((product) => {
     const variant = product.variants?.[0];
     return `
-      <article class="product-card">
+      <article class="product-card product-card--${escapeHtml(product.id || "crunchh")}">
         <div class="product-media">${productImageHtml(product)}</div>
         <div class="product-body">
           <div class="product-meta-line">
@@ -311,6 +349,23 @@ function initWhatsappLinks() {
   });
 }
 
+function initScrollReveal() {
+  const sections = document.querySelectorAll(".shop-section, .gifting-section, .bulk-section, .about-section, .contact-section, .reviews-section");
+  if (!sections.length) return;
+  if (!("IntersectionObserver" in window) || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    sections.forEach((section) => section.classList.add("is-visible"));
+    return;
+  }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.16 });
+  sections.forEach((section) => observer.observe(section));
+}
+
 async function apiJson(path, options = {}) {
   const response = await fetch(`${CONFIG.apiBase}${path}`, {
     ...options,
@@ -371,6 +426,7 @@ async function initApp() {
   initWhatsappLinks();
   initBulkOrderForm();
   initContactForm();
+  initScrollReveal();
   loadCatalogFromServer().then((updated) => {
     if (updated) renderProducts();
   });
