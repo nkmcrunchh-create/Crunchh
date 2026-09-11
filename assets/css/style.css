@@ -230,7 +230,7 @@ button {
   padding: 86px 0 58px;
   background:
     linear-gradient(118deg, rgba(43, 23, 109, 0.97) 0%, rgba(99, 31, 164, 0.92) 42%, rgba(0, 111, 87, 0.92) 100%),
-    url("../img/gifting-combos.png") center / cover;
+    url("../img/optimized/gifting-combos.jpg") center / cover;
   color: #fff;
   overflow: hidden;
 }

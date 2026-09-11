@@ -349,6 +349,16 @@ function initWhatsappLinks() {
   });
 }
 
+function initStaticImageFallbacks() {
+  document.querySelectorAll("img[data-fallback-src]").forEach((image) => {
+    image.addEventListener("error", () => {
+      const fallback = image.dataset.fallbackSrc;
+      if (!fallback || image.src.endsWith(fallback)) return;
+      image.src = fallback;
+    }, { once: true });
+  });
+}
+
 function initScrollReveal() {
   const sections = document.querySelectorAll(".shop-section, .gifting-section, .bulk-section, .about-section, .contact-section, .reviews-section");
   if (!sections.length) return;
@@ -424,6 +434,7 @@ async function initApp() {
   renderGiftCombos();
   initNav();
   initWhatsappLinks();
+  initStaticImageFallbacks();
   initBulkOrderForm();
   initContactForm();
   initScrollReveal();
